@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 
 # Замените 'YOUR_BOT_TOKEN' на токен вашего бота
-bot = telebot.TeleBot('YOUR_BOT_TOKEN')
+bot = telebot.TeleBot('7031635922:AAEwZ1BM3S9A2j4Ja8Z3C2t8K6ED3lh4654')
 
 # Обработчик команды '/start', который запускает меню
 @bot.message_handler(commands=['start'])
