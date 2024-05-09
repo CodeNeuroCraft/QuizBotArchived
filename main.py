@@ -33,3 +33,5 @@ def profile(message):
 
 # Запуск бота
 bot.polling()
+
+print('succesfully!')
