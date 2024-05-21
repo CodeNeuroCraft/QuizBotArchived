@@ -6,7 +6,7 @@ from os import getenv
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
 
 # Bot token can be obtained via https://t.me/BotFather
@@ -44,10 +44,19 @@ async def echo_handler(message: Message) -> None:
         await message.answer("Nice try!")
 
 
+@dp.message(Command("dice"))
+async def echo_handler(message: Message) -> None:
+    """
+    Handler will forward receive a message back to the sender
+
+    By default, message handler will handle all message types (like a text, photo, sticker etc.)
+    """
+    # Send a copy of the received message
+    await message.answer_dice()
+
+
 async def main() -> None:
-    # Initialize Bot instance with default bot properties which will be passed to all API calls
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    # And the run events dispatching
     await dp.start_polling(bot)
 
 
