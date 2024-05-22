@@ -3,66 +3,69 @@ import logging
 import sys
 from os import getenv
 
-from aiogram import Bot, Dispatcher, html
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from aiogram.filters import Command, CommandStart
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher, F
+from aiogram.filters import CommandStart
+from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+import aiogram.types
 
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = getenv("TOKEN")
 
 # All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
+bot = Bot(token=TOKEN)
+
+# База данных (в данном случае словарь)
+registrations = {}
 
 
 @dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    """
-    This handler receives messages with `/start` command
-    """
-    # Most event objects have aliases for API methods that can be called in events' context
-    # For example if you want to answer to incoming message you can use `message.answer(...)` alias
-    # and the target chat will be passed to :ref:`aiogram.methods.send_message.SendMessage`
-    # method automatically or call API method directly via
-    # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+async def send_welcome(message: Message):
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text='Регистрация', callback_data='registration'),
+                        InlineKeyboardButton(text='Другая кнопка', callback_data='other')]])
+    await message.answer_photo(
+        photo='https://vjoy.cc/wp-content/uploads/2019/07/13-1.jpg',
+        caption="Текст под фото",
+        reply_markup=keyboard)
 
 
-@dp.message()
-async def echo_handler(message: Message) -> None:
-    """
-    Handler will forward receive a message back to the sender
-
-    By default, message handler will handle all message types (like a text, photo, sticker etc.)
-    """
-    try:
-        # Send a copy of the received message
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        # But not all the types is supported to be copied so need to handle it
-        await message.answer("Nice try!")
+@dp.callback_query(F.data == 'registration')
+async def process_registration(callback: CallbackQuery):
+    await callback.answer()
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Да', callback_data='confirm_registration')]])
+    await callback.message.answer('Вы уверены, что хотите зарегистрироваться?', reply_markup=keyboard)
 
 
-@dp.message(Command("dice"))
-async def echo_handler(message: Message) -> None:
-    """
-    Handler will forward receive a message back to the sender
+@dp.callback_query_handler(F.data == 'confirm_registration')
+async def confirm_registration(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.answer('Введите вашу школу:')
+    registrations[callback.from_user.id] = {
+        'school': None,
+        'parallel': None,
+    }
+    await bot.register_next_step_handler(callback.message, process_school)
 
-    By default, message handler will handle all message types (like a text, photo, sticker etc.)
-    """
-    # Send a copy of the received message
-    await message.answer_dice()
+
+async def process_school(message: Message):
+    registrations[message.from_user.id]['school'] = message.text
+    await message.answer('Введите вашу параллель:')
+    await bot.register_next_step_handler(message, process_parallel)
+
+
+async def process_parallel(message: Message):
+    registrations[message.from_user.id]['parallel'] = message.text
+    await message.answer('Вы успешно зарегистрированы!')
 
 
 async def main() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     try:
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
         asyncio.run(main())
     except KeyboardInterrupt:
-        print('Exit')
+        print('exit')
