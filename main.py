@@ -6,7 +6,8 @@ from os import getenv
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-import aiogram.types
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
 
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = getenv("TOKEN")
@@ -18,9 +19,13 @@ bot = Bot(token=TOKEN)
 # База данных (в данном случае словарь)
 registrations = {}
 
+# класс регистрации
+class Reg(StatesGroup):
+    school = State()
+    parallel = State()
 
 @dp.message(CommandStart())
-async def send_welcome(message: Message):
+async def send_welcome(message: Message) -> None:
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text='Регистрация', callback_data='registration'),
                         InlineKeyboardButton(text='Другая кнопка', callback_data='other')]])
@@ -31,29 +36,30 @@ async def send_welcome(message: Message):
 
 
 @dp.callback_query(F.data == 'registration')
-async def process_registration(callback: CallbackQuery):
+async def process_registration(callback: CallbackQuery) -> None:
     await callback.answer()
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Да', callback_data='confirm_registration')]])
     await callback.message.answer('Вы уверены, что хотите зарегистрироваться?', reply_markup=keyboard)
 
 
-@dp.callback_query_handler(F.data == 'confirm_registration')
-async def confirm_registration(callback: CallbackQuery):
+@dp.callback_query(F.data == 'confirm_registration')
+async def confirm_registration(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await callback.message.answer('Введите вашу школу:')
     registrations[callback.from_user.id] = {
         'school': None,
         'parallel': None,
     }
-    await bot.register_next_step_handler(callback.message, process_school)
+    await state.set_state(Reg.school)
 
-
-async def process_school(message: Message):
+@dp.message(Reg.school)
+async def process_school(message: Message, state: FSMContext) -> None:
     registrations[message.from_user.id]['school'] = message.text
     await message.answer('Введите вашу параллель:')
-    await bot.register_next_step_handler(message, process_parallel)
+    await state.set_state(Reg.parallel)
 
 
+@dp.message(Reg.parallel)
 async def process_parallel(message: Message):
     registrations[message.from_user.id]['parallel'] = message.text
     await message.answer('Вы успешно зарегистрированы!')
