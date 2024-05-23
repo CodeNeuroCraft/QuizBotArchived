@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import sys
+
+from dotenv import load_dotenv
 from os import getenv
 
 from aiogram import Bot, Dispatcher, F
@@ -9,8 +11,8 @@ from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, C
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
-# Bot token can be obtained via https://t.me/BotFather
-TOKEN = getenv("TOKEN")
+load_dotenv()
+TOKEN = getenv('TOKEN')
 
 # All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
@@ -60,7 +62,7 @@ async def process_school(message: Message, state: FSMContext) -> None:
 
 
 @dp.message(Reg.parallel)
-async def process_parallel(message: Message):
+async def process_parallel(message: Message) -> None:
     registrations[message.from_user.id]['parallel'] = message.text
     await message.answer('Вы успешно зарегистрированы!')
 
