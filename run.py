@@ -10,7 +10,6 @@ from app.handlers import router
 
 from aiogram import Bot, Dispatcher
 
-# All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
 bot = Bot(token=getenv('TOKEN'))
 
