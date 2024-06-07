@@ -1,6 +1,6 @@
 from aiogram import F, Router, Bot
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from . import reply_markups
@@ -25,14 +25,15 @@ async def start(message: Message):
 
 @router.callback_query(F.data == 'reg')
 async def process_registration(callback: CallbackQuery, state: FSMContext):
+    await callback.message.delete()
     sent_msg = await callback.message.answer('Вы уверены, что хотите зарегистрироваться?', reply_markup=reply_markups.confirm)
     await state.update_data(last_msg_id=sent_msg.message_id)
     await callback.answer()
 
 
 @router.callback_query(F.data == 'confirm_reg')
-async def confirm_registration(callback: CallbackQuery, bot: Bot, state: FSMContext):
-    sent_msg = await bot.edit_message_text('Введите вашу школу:', callback.message.chat.id, (await state.get_data())['last_msg_id'], reply_markup=None)
+async def confirm_registration(callback: CallbackQuery, state: FSMContext):
+    sent_msg = await callback.message.edit_text('Введите вашу школу:', reply_markup=InlineKeyboardMarkup(inline_keyboard=[]))
     registrations[callback.from_user.id] = {
         'school': None,
         'parallel': None,
