@@ -2,9 +2,7 @@ import asyncio
 import logging
 import sys
 
-from dotenv import load_dotenv
 from os import getenv
-load_dotenv()
 
 from app.handlers import router
 
