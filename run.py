@@ -1,25 +1,24 @@
-import asyncio
-import logging
-import sys
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram_dialog import setup_dialogs
 
 from os import getenv
+import logging, sys
 
-from app.handlers1 import router
+from app.dialog import dialog, router
 
-from aiogram import Bot, Dispatcher
 
-dp = Dispatcher()
+storage = MemoryStorage()
 bot = Bot(token=getenv('TOKEN'))
+dp = Dispatcher(storage=storage)
+dp.include_router(dialog)
+dp.include_router(router)
+setup_dialogs(dp)
 
 
-async def main() -> None:
-    dp.include_router(router)
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-        asyncio.run(main())
+        dp.run_polling(bot)
     except KeyboardInterrupt:
         print('exit')
