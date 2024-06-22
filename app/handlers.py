@@ -3,9 +3,10 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from . import reply_markups
+from . import reply_markups, middle
 
 router = Router()
+router.message.middleware(middle.Middle())
 
 # База данных (в данном случае словарь)
 registrations = {}

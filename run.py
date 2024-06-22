@@ -4,7 +4,7 @@ import sys
 
 from os import getenv
 
-from app.handlers import router
+from app.handlers1 import router
 
 from aiogram import Bot, Dispatcher
 
