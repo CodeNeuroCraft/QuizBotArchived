@@ -7,6 +7,7 @@ from aiogram.types import ContentType
 from aiogram_dialog.widgets.kbd import Button, Row
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog.widgets.input import MessageInput
+from aiogram_dialog import ShowMode
 
 from .states.main_menu import MainMenu
 from .states.reg import Reg
@@ -22,7 +23,7 @@ async def help(callback: CallbackQuery, button: Button, manager: DialogManager):
 async def to_main(callback: CallbackQuery, button: Button, manager: DialogManager):
     await manager.start(MainMenu.main)
 
-async def reg(callback: CallbackQuery, button: Button, manager: DialogManager):
+async def to_reg(callback: CallbackQuery, button: Button, manager: DialogManager):
     await manager.start(Reg.confirm)
 
 async def confirm_reg(callback: CallbackQuery, button: Button, manager: DialogManager):
@@ -39,11 +40,13 @@ async def school_handler(
         message_input: MessageInput,
         manager: DialogManager,
 ):
+    manager.show_mode=ShowMode.EDIT
     registrations[message.from_user.id] = {
         'school': None,
         'parallel': None,
     }
     registrations[message.from_user.id]['school'] = message.text
+    await message.delete()
     await manager.switch_to(Reg.parallel)
 
 async def parallel_handler(
@@ -51,7 +54,9 @@ async def parallel_handler(
         message_input: MessageInput,
         manager: DialogManager,
 ):
+    manager.show_mode=ShowMode.EDIT
     registrations[message.from_user.id]['parallel'] = message.text
+    await message.delete()
     await manager.switch_to(Reg.success)
 
 first = Dialog(
@@ -65,7 +70,7 @@ first = Dialog(
             Button(
                 Const('Регистрация'),
                 id='reg',
-                on_click=reg
+                on_click=to_reg
             ),
             Button(
                 Const('Помощь'),
@@ -89,10 +94,17 @@ first = Dialog(
 second = Dialog(
     Window(
         Const('Вы уверены, что хотите зарегистрироваться?'),
-        Button(
-            Const('ДА'),
-            id='school',
-            on_click=ask_school
+        Row(
+            Button(
+                Const('ДА'),
+                id='school',
+                on_click=ask_school
+            ),
+            Button(
+                Const('НЕТ'),
+                id='back',
+                on_click=to_main
+            ),
         ),
         state=Reg.confirm,
     ),
