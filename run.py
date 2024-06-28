@@ -5,13 +5,14 @@ from aiogram_dialog import setup_dialogs
 from os import getenv
 import logging, sys
 
-from app.dialog import dialog, router
+from app.dialog import first, second, router
 
 
 storage = MemoryStorage()
 bot = Bot(token=getenv('TOKEN'))
 dp = Dispatcher(storage=storage)
-dp.include_router(dialog)
+dp.include_router(first)
+dp.include_router(second)
 dp.include_router(router)
 setup_dialogs(dp)
 
