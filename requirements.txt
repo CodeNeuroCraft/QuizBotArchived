@@ -1,3 +1,4 @@
 aiogram
 aiogram_dialog
 asyncpg
+python-dotenv

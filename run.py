@@ -1,19 +1,23 @@
+from os import getenv
+import logging, sys
+
+from dotenv import load_dotenv
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_dialog import setup_dialogs
 
-from os import getenv
-import logging, sys
-
-from app.dialog import first, second, router
+from app.start import router
 
 
 storage = MemoryStorage()
-bot = Bot(token=getenv('TOKEN'))
+
+load_dotenv()
+bot = Bot(token=getenv('QUIZBOT_TOKEN'))
+
 dp = Dispatcher(storage=storage)
-dp.include_router(first)
-dp.include_router(second)
 dp.include_router(router)
+
 setup_dialogs(dp)
 
 
