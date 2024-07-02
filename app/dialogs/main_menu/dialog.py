@@ -1,10 +1,7 @@
-from aiogram import Router
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-from aiogram_dialog import Dialog, DialogManager, StartMode, Window
+from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram.types import ContentType
-from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo, Start
+from aiogram_dialog.widgets.kbd import Row, SwitchTo, Start
 from aiogram_dialog.widgets.text import Const
 
 from app.states.main_menu import MainMenu

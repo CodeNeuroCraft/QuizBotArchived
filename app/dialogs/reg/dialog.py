@@ -1,10 +1,12 @@
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram.types import ContentType, CallbackQuery
-from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo, Start
+
+from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog import ShowMode
+
 
 from app.states.reg import Reg
 
