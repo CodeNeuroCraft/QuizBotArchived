@@ -9,36 +9,7 @@ from aiogram_dialog import ShowMode
 
 
 from app.states.reg import Reg
-
-# База данных (в данном случае словарь)
-registrations = {}
-
-async def to_main(callback: CallbackQuery, button: Button, manager: DialogManager):
-    await manager.done()
-
-async def school_handler(
-        message: Message,
-        message_input: MessageInput,
-        manager: DialogManager,
-):
-    manager.show_mode=ShowMode.EDIT
-    registrations[message.from_user.id] = {
-        'school': None,
-        'parallel': None,
-    }
-    registrations[message.from_user.id]['school'] = message.text
-    await message.delete()
-    await manager.switch_to(Reg.parallel)
-
-async def parallel_handler(
-        message: Message,
-        message_input: MessageInput,
-        manager: DialogManager,
-):
-    manager.show_mode=ShowMode.EDIT
-    registrations[message.from_user.id]['parallel'] = message.text
-    await message.delete()
-    await manager.switch_to(Reg.success)
+from . import on_event
 
 reg_dialog = Dialog(
     Window(
@@ -52,19 +23,19 @@ reg_dialog = Dialog(
             Button(
                 Const('НЕТ'),
                 id='back',
-                on_click=to_main
+                on_click=on_event.to_main
             ),
         ),
         state=Reg.confirm,
     ),
     Window(
         Const('Введите вашу школу:'),
-        MessageInput(school_handler, content_types=[ContentType.TEXT]),
+        MessageInput(on_event.process_school, content_types=[ContentType.TEXT]),
         state=Reg.school,
     ),
     Window(
         Const('Введите вашу параллель:'),
-        MessageInput(parallel_handler, content_types=[ContentType.TEXT]),
+        MessageInput(on_event.process_parallel, content_types=[ContentType.TEXT]),
         state=Reg.parallel,
     ),
     Window(
@@ -72,7 +43,7 @@ reg_dialog = Dialog(
         Button(
             Const('НАЗАД'),
             id='back',
-            on_click=to_main
+            on_click=on_event.to_main
         ),
         state=Reg.success,
     ),
