@@ -1,15 +1,15 @@
-from aiogram.types import Message
-from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram.types import ContentType, CallbackQuery
+from aiogram_dialog import Dialog, Window
+from aiogram.types import ContentType
 
 from aiogram_dialog.widgets.kbd import Button, Row, SwitchTo
-from aiogram_dialog.widgets.text import Const
+from aiogram_dialog.widgets.text import Const, Format
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog import ShowMode
 
 
 from app.states.reg import Reg
 from . import on_event
+
+
 
 reg_dialog = Dialog(
     Window(
@@ -18,12 +18,13 @@ reg_dialog = Dialog(
             SwitchTo(
                 Const('ДА'),
                 id='school',
-                state=Reg.school
+                state=Reg.school,
+                on_click=on_event.start_reg,
             ),
             Button(
                 Const('НЕТ'),
                 id='back',
-                on_click=on_event.to_main
+                on_click=on_event.to_main,
             ),
         ),
         state=Reg.confirm,
@@ -39,11 +40,31 @@ reg_dialog = Dialog(
         state=Reg.parallel,
     ),
     Window(
+        Const('Введенные данные:'),
+        Format('Школа: {dialog_data[school]};'),
+        Format('Параллель: {dialog_data[parallel]};'),
+        Row(
+            SwitchTo(
+                Const('ВСЁ ВЕРНО'),
+                id='success',
+                state=Reg.success,
+                on_click=on_event.end_reg
+            ),
+            SwitchTo(
+                Const('ХРЕНЬ'),
+                id='confirm',
+                state=Reg.confirm,
+                on_click=on_event.abort_reg
+            ),
+        ),
+        state=Reg.check,
+    ),
+    Window(
         Const('Вы успешно зарегистрированы!'),
         Button(
             Const('НАЗАД'),
             id='back',
-            on_click=on_event.to_main
+            on_click=on_event.to_main,
         ),
         state=Reg.success,
     ),

@@ -1,5 +1,5 @@
 from os import getenv
-import logging, sys
+import logging, sys, asyncio
 
 
 from dotenv import load_dotenv
@@ -12,6 +12,7 @@ from aiogram_dialog import setup_dialogs
 
 
 from app.start import linker
+
 
 storage = RedisStorage.from_url('redis://localhost:6379/0',
                                 key_builder=DefaultKeyBuilder(with_destiny=True))

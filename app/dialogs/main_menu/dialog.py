@@ -7,6 +7,8 @@ from aiogram_dialog.widgets.text import Const
 from app.states.main_menu import MainMenu
 from app.states.reg import Reg
 
+
+
 main_menu_dialog = Dialog(
     Window(
         StaticMedia(
