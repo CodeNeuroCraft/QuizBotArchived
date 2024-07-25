@@ -41,8 +41,8 @@ reg_dialog = Dialog(
     ),
     Window(
         Const('Введенные данные:'),
-        Format('Школа: {dialog_data[school]};'),
-        Format('Параллель: {dialog_data[parallel]};'),
+        Format('Школа: {school};'),
+        Format('Параллель: {parallel};'),
         Row(
             SwitchTo(
                 Const('ВСЁ ВЕРНО'),
@@ -57,6 +57,7 @@ reg_dialog = Dialog(
                 on_click=on_event.abort_reg
             ),
         ),
+        getter=on_event.registrations.get_session_data,
         state=Reg.check,
     ),
     Window(

@@ -1,5 +1,5 @@
 from os import getenv
-import logging, sys, asyncio
+import logging, sys
 
 
 from dotenv import load_dotenv
@@ -16,7 +16,7 @@ from app.start import linker
 
 storage = RedisStorage.from_url('redis://localhost:6379/0',
                                 key_builder=DefaultKeyBuilder(with_destiny=True))
-
+                                
 load_dotenv()
 bot = Bot(token=getenv('QUIZBOT_TOKEN'))
 

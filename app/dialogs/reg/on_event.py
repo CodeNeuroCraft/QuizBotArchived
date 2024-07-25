@@ -27,10 +27,10 @@ class DB:
             CREATE account:{self.user.id};
         ''')
 
-    async def enter_school(self, school: str):
+    async def set_school(self, school: str):
         self.school = school
 
-    async def enter_parallel(self, parallel: str):
+    async def set_parallel(self, parallel: str):
         self.parallel = parallel
 
     async def commit_session(self):
@@ -46,39 +46,12 @@ class DB:
         ''')
         await self.db.close()
 
-# class AUser:
-#     db = Surreal('ws://localhost:8000/rpc')
-
-#     async def __init__(self, id: int):
-#         self.id = id
-#         await self.db.connect()
-#         await self.db.signin({
-#             'user': 'root',
-#             'pass': 'root',
-#         })
-#         await self.db.query(f'''
-#             CREATE account:{self.id}
-#         ''')
-
-#     async def set_school(self, school: str):
-#         self.school = school
-
-#     async def set_parallel(self, parallel: str):
-#         self.parallel = parallel
-
-#     async def commit(self):
-#         await self.db.query(f'''
-#             UPDATE account:{self.id}
-#             SET school = '{self.school}'
-#             SET parallel = '{self.parallel}';
-#         ''')
-#         await self.db.close()
-
-# usr = AUser(-100331231)
-# usr.set_school('dadadsda')
-# usr.set_parallel('adasdadads')
-# usr.commit()
-
+    async def get_session_data(self, **kwargs):
+        return {
+            'school': self.school,
+            'parallel': self.parallel,
+        }
+    
 async def to_main(
         callback: CallbackQuery,
         button: Button,
@@ -116,8 +89,7 @@ async def process_school(
         manager: DialogManager,
 ):
     manager.show_mode=ShowMode.EDIT
-    await registrations.enter_school(message.text)
-    manager.dialog_data['school'] = message.text
+    await registrations.set_school(message.text)
     await message.delete()
     await manager.switch_to(Reg.parallel)
 
@@ -127,7 +99,6 @@ async def process_parallel(
         manager: DialogManager,
 ):
     manager.show_mode=ShowMode.EDIT
-    await registrations.enter_parallel(message.text)
-    manager.dialog_data['parallel'] = message.text
+    await registrations.set_parallel(message.text)
     await message.delete()
     await manager.switch_to(Reg.check)
