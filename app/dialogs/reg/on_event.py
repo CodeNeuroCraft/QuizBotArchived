@@ -11,21 +11,22 @@ from surrealdb import Surreal
 
 from app.states.reg import Reg
 
-
-
 class DB:
     db = Surreal('ws://localhost:8000/rpc')
 
-    async def open_session(self, user: User):
-        self.user = user
+    async def __init__(self):
         await self.db.connect()
         await self.db.signin({
             'user': 'root',
             'pass': 'root',
         })
-        await self.db.query(f'''
-            CREATE account:{self.user.id};
-        ''')
+    
+    async def open_session(self, user: User):
+        self.user_id = user.id
+        await self.db.create(self.user_id, {
+            'school': None,
+            'parallel': None,
+        })
 
     async def set_school(self, school: str):
         self.school = school
@@ -34,23 +35,21 @@ class DB:
         self.parallel = parallel
 
     async def commit_session(self):
-        await self.db.query(f'''
-            UPDATE account:{self.user.id} SET school = '{self.school}';
-            UPDATE account:{self.user.id} SET parallel = '{self.parallel}';
-        ''')
+        await self.db.update(f'account:{self.user_id}', {
+            'school': self.school,
+            'parallel': self.parallel
+        })
         await self.db.close()
 
     async def abort_session(self):
-        await self.db.query(f'''
-            DELETE account:{self.user.id};
-        ''')
-        await self.db.close()
+        await self.db.delete(self.user_id)
 
     async def get_session_data(self, **kwargs):
         return {
             'school': self.school,
             'parallel': self.parallel,
         }
+        
     
 async def to_main(
         callback: CallbackQuery,
